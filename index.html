@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1.0"
+    />
+    <title>Fraud Detection</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background-color: #d2b48c;
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        width: 100%;
+      }
+      h1 {
+        margin-bottom: 20px;
+        font-size: 2.5em;
+      }
+      input[type="file"] {
+        margin: 20px 0;
+      }
+      button {
+        background-color: #ff9800;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #fb8c00;
+      }
+      footer {
+        margin-top: 20px;
+        font-size: 0.8em;
+        color: #888;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Fraud Detection</h1>
+      <h2 class="header center orange-text" style="font-size: 1.5em">
+        Upload Transaction Data
+      </h2>
+      <div class="row center">
+        <h5 class="header col s12 light">
+          Upload a CSV file to check for potential fraud.
+        </h5>
+      </div>
+      <div class="row center">
+        <form id="upload-form">
+          <input
+            type="file"
+            id="file-input"
+            name="file"
+            accept=".csv"
+            required
+          />
+          <button type="submit">Upload and Predict</button>
+        </form>
+      </div>
+      <div id="results"></div>
+      <footer>
+        Made by
+        <a href="http://materializecss.com" class="orange-text text-lighten-3"
+          >Materialize</a
+        >
+      </footer>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#upload-form").on("submit", function (e) {
+          e.preventDefault();
+          var formData = new FormData(this);
+          $.ajax({
+            url: "/predict",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+              var resultsDiv = $("#results");
+              resultsDiv.empty();
+              if (data.error) {
+                resultsDiv.append(
+                  '<p style="color: red;">' + data.error + "</p>"
+                );
+              } else {
+                resultsDiv.append("<h3>Predictions:</h3>");
+                resultsDiv.append(
+                  "<p>Original Data: " +
+                    data.predictions_original.join(", ") +
+                    "</p>"
+                );
+                resultsDiv.append(
+                  "<p>Downsampled Data: " +
+                    data.predictions_downsampled.join(", ") +
+                    "</p>"
+                );
+                resultsDiv.append(
+                  "<p>Oversampled Data: " +
+                    data.predictions_upsampled.join(", ") +
+                    "</p>"
+                );
+              }
+            },
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
